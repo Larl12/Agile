@@ -8,6 +8,13 @@ namespace StarfallArena;
 
 public class GameManager
 {
+    private const int FrameDelayMilliseconds = 80;
+    private const ConsoleKey FirstEnemyKey = ConsoleKey.D1;
+    private const ConsoleKey SecondEnemyKey = ConsoleKey.D2;
+    private const ConsoleKey ExitKey = ConsoleKey.Escape;
+    private const char WallSymbol = '#';
+    private const char FloorSymbol = '.';
+
     private static GameManager? _instance;
     private readonly List<EnemyFactory> _enemyFactories;
     private readonly GameSessionFacade _sessionFacade;
@@ -24,16 +31,8 @@ public class GameManager
         MapHeight = 12;
         Difficulty = Difficulty.Normal;
         _sessionFacade = new GameSessionFacade();
-        _enemyFactories = new List<EnemyFactory>
-        {
-            new OrcFactory(),
-            new GhostFactory()
-        };
-        GameSessionContext session = _sessionFacade.StartSession(MapWidth, MapHeight, _enemyFactories);
-        _player = session.Player;
-        _playerWeapon = session.Weapon;
-        _currentEnemy = session.StartingEnemy;
-        _lastAction = session.Summary;
+        _enemyFactories = CreateEnemyFactories();
+        (_player, _playerWeapon, _currentEnemy, _lastAction) = CreateInitialSession();
     }
 
     public static GameManager Instance
@@ -53,9 +52,7 @@ public class GameManager
 
     public void Run()
     {
-        _isRunning = true;
-        _frameCounter = 0;
-        Console.CursorVisible = false;
+        PrepareGameLoop();
 
         try
         {
@@ -64,16 +61,43 @@ public class GameManager
                 HandleInput();
                 Update();
                 Draw();
-                Thread.Sleep(80);
+                Thread.Sleep(FrameDelayMilliseconds);
             }
         }
         finally
         {
-            Console.CursorVisible = true;
-            Console.ResetColor();
-            Console.Clear();
-            Console.WriteLine("Game Manager stopped the game loop.");
+            CleanupConsole();
         }
+    }
+
+    private static List<EnemyFactory> CreateEnemyFactories()
+    {
+        return
+        [
+            new OrcFactory(),
+            new GhostFactory()
+        ];
+    }
+
+    private (Player player, IWeapon weapon, Enemy enemy, string summary) CreateInitialSession()
+    {
+        GameSessionContext session = _sessionFacade.StartSession(MapWidth, MapHeight, _enemyFactories);
+        return (session.Player, session.Weapon, session.StartingEnemy, session.Summary);
+    }
+
+    private void PrepareGameLoop()
+    {
+        _isRunning = true;
+        _frameCounter = 0;
+        Console.CursorVisible = false;
+    }
+
+    private static void CleanupConsole()
+    {
+        Console.CursorVisible = true;
+        Console.ResetColor();
+        Console.Clear();
+        Console.WriteLine("Game Manager stopped the game loop.");
     }
 
     private void HandleInput()
@@ -85,28 +109,37 @@ public class GameManager
 
         ConsoleKey key = Console.ReadKey(intercept: true).Key;
 
-        if (key == ConsoleKey.Escape)
+        if (key == ExitKey)
         {
-            _lastAction = "Escape pressed. Exiting the game.";
-            _isRunning = false;
+            StopGameLoop();
             return;
         }
 
-        if (key == ConsoleKey.D1)
+        if (key == FirstEnemyKey)
         {
-            _currentEnemy = _enemyFactories[0].CreateEnemy();
-            _lastAction = _enemyFactories[0].SpawnEnemy();
+            SpawnEnemyFromFactory(0);
             return;
         }
 
-        if (key == ConsoleKey.D2)
+        if (key == SecondEnemyKey)
         {
-            _currentEnemy = _enemyFactories[1].CreateEnemy();
-            _lastAction = _enemyFactories[1].SpawnEnemy();
+            SpawnEnemyFromFactory(1);
             return;
         }
 
         _lastAction = $"Last input: {key}";
+    }
+
+    private void StopGameLoop()
+    {
+        _lastAction = "Escape pressed. Exiting the game.";
+        _isRunning = false;
+    }
+
+    private void SpawnEnemyFromFactory(int index)
+    {
+        _currentEnemy = _enemyFactories[index].CreateEnemy();
+        _lastAction = _enemyFactories[index].SpawnEnemy();
     }
 
     private void Update()
@@ -117,6 +150,12 @@ public class GameManager
     private void Draw()
     {
         Console.Clear();
+        DrawHud();
+        DrawArena();
+    }
+
+    private void DrawHud()
+    {
         Console.WriteLine($"Game Started with difficulty: {Difficulty}");
         Console.WriteLine($"Map size: {MapWidth} x {MapHeight}");
         Console.WriteLine($"Frame: {_frameCounter}");
@@ -130,22 +169,23 @@ public class GameManager
         Console.WriteLine();
         Console.WriteLine("Controls: 1 = Orc factory, 2 = Ghost factory, Esc = exit.");
         Console.WriteLine();
+    }
 
+    private void DrawArena()
+    {
         for (int y = 0; y < MapHeight; y++)
         {
             for (int x = 0; x < MapWidth; x++)
             {
-                if (y == 0 || y == MapHeight - 1 || x == 0 || x == MapWidth - 1)
-                {
-                    Console.Write('#');
-                }
-                else
-                {
-                    Console.Write('.');
-                }
+                Console.Write(IsBorder(x, y) ? WallSymbol : FloorSymbol);
             }
 
             Console.WriteLine();
         }
+    }
+
+    private bool IsBorder(int x, int y)
+    {
+        return y == 0 || y == MapHeight - 1 || x == 0 || x == MapWidth - 1;
     }
 }
