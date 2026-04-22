@@ -2,6 +2,7 @@ using StarfallArena.Enemies;
 using StarfallArena.Entities;
 using StarfallArena.Facades;
 using StarfallArena.Factories;
+using StarfallArena.Strategies;
 using StarfallArena.Weapons;
 
 namespace StarfallArena;
@@ -11,6 +12,10 @@ public class GameManager
     private const int FrameDelayMilliseconds = 80;
     private const ConsoleKey FirstEnemyKey = ConsoleKey.D1;
     private const ConsoleKey SecondEnemyKey = ConsoleKey.D2;
+    private const ConsoleKey AggressiveStrategyKey = ConsoleKey.D3;
+    private const ConsoleKey RangedStrategyKey = ConsoleKey.D4;
+    private const ConsoleKey FleeStrategyKey = ConsoleKey.D5;
+    private const ConsoleKey ExecuteStrategyKey = ConsoleKey.Enter;
     private const ConsoleKey ExitKey = ConsoleKey.Escape;
     private const char WallSymbol = '#';
     private const char FloorSymbol = '.';
@@ -22,6 +27,7 @@ public class GameManager
     private readonly IWeapon _playerWeapon;
     private Enemy _currentEnemy;
     private bool _isRunning;
+    private bool _enemyShouldAct;
     private int _frameCounter;
     private string _lastAction = "Press any key to interact. Press Esc to exit.";
 
@@ -127,6 +133,31 @@ public class GameManager
             return;
         }
 
+        if (key == AggressiveStrategyKey)
+        {
+            ChangeEnemyStrategy(new AggressiveAttackStrategy());
+            return;
+        }
+
+        if (key == RangedStrategyKey)
+        {
+            ChangeEnemyStrategy(new RangedAttackStrategy());
+            return;
+        }
+
+        if (key == FleeStrategyKey)
+        {
+            ChangeEnemyStrategy(new FleeBehaviorStrategy());
+            return;
+        }
+
+        if (key == ExecuteStrategyKey)
+        {
+            _enemyShouldAct = true;
+            _lastAction = $"{_currentEnemy.Name} prepares to use {_currentEnemy.CurrentBehavior} behavior.";
+            return;
+        }
+
         _lastAction = $"Last input: {key}";
     }
 
@@ -142,9 +173,21 @@ public class GameManager
         _lastAction = _enemyFactories[index].SpawnEnemy();
     }
 
+    private void ChangeEnemyStrategy(IEnemyBehaviorStrategy strategy)
+    {
+        _currentEnemy.SetBehaviorStrategy(strategy);
+        _lastAction = $"{_currentEnemy.Name} switched to {_currentEnemy.CurrentBehavior} behavior.";
+    }
+
     private void Update()
     {
         _frameCounter++;
+
+        if (_enemyShouldAct)
+        {
+            _lastAction = _currentEnemy.Act();
+            _enemyShouldAct = false;
+        }
     }
 
     private void Draw()
@@ -165,9 +208,10 @@ public class GameManager
         Console.WriteLine($"Weapon modifiers: {_playerWeapon.GetDescription()}");
         Console.WriteLine($"Weapon damage: {_playerWeapon.GetDamage()}");
         Console.WriteLine($"Current enemy: {_currentEnemy.Name}, Health: {_currentEnemy.Health}");
+        Console.WriteLine($"Enemy behavior: {_currentEnemy.CurrentBehavior}");
         Console.WriteLine(_lastAction);
         Console.WriteLine();
-        Console.WriteLine("Controls: 1 = Orc factory, 2 = Ghost factory, Esc = exit.");
+        Console.WriteLine("Controls: 1 = Orc, 2 = Ghost, 3 = Aggressive, 4 = Ranged, 5 = Flee, Enter = Act, Esc = exit.");
         Console.WriteLine();
     }
 
