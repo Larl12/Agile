@@ -1,6 +1,6 @@
-using StarfallArena.Builders;
 using StarfallArena.Enemies;
 using StarfallArena.Entities;
+using StarfallArena.Facades;
 using StarfallArena.Factories;
 using StarfallArena.Weapons;
 
@@ -10,6 +10,7 @@ public class GameManager
 {
     private static GameManager? _instance;
     private readonly List<EnemyFactory> _enemyFactories;
+    private readonly GameSessionFacade _sessionFacade;
     private readonly Player _player;
     private readonly IWeapon _playerWeapon;
     private Enemy _currentEnemy;
@@ -22,25 +23,17 @@ public class GameManager
         MapWidth = 30;
         MapHeight = 12;
         Difficulty = Difficulty.Normal;
+        _sessionFacade = new GameSessionFacade();
         _enemyFactories = new List<EnemyFactory>
         {
             new OrcFactory(),
             new GhostFactory()
         };
-        _player = new CharacterBuilder()
-            .SetName("Arin")
-            .SetHealth(18)
-            .SetPosition(2, 2)
-            .SetArmor(4)
-            .SetClass("Arena Knight")
-            .SetStartingWeapon("Steel Sword")
-            .Build();
-        _playerWeapon = new CriticalStrikeDecorator(
-            new FireDamageDecorator(
-                new RustDecorator(new Sword(), 2),
-                5),
-            2);
-        _currentEnemy = _enemyFactories[0].CreateEnemy();
+        GameSessionContext session = _sessionFacade.StartSession(MapWidth, MapHeight, _enemyFactories);
+        _player = session.Player;
+        _playerWeapon = session.Weapon;
+        _currentEnemy = session.StartingEnemy;
+        _lastAction = session.Summary;
     }
 
     public static GameManager Instance
