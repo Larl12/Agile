@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarfallArena", "StarfallArena\StarfallArena.csproj", "{AB12D63A-E40D-4A4F-BD01-703C6658EBA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarfallArena.Tests", "StarfallArena.Tests\StarfallArena.Tests.csproj", "{5E398FC4-3945-4312-9C79-057D8E49EF8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{AB12D63A-E40D-4A4F-BD01-703C6658EBA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB12D63A-E40D-4A4F-BD01-703C6658EBA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB12D63A-E40D-4A4F-BD01-703C6658EBA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E398FC4-3945-4312-9C79-057D8E49EF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E398FC4-3945-4312-9C79-057D8E49EF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E398FC4-3945-4312-9C79-057D8E49EF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E398FC4-3945-4312-9C79-057D8E49EF8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
