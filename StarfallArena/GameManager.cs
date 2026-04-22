@@ -3,6 +3,7 @@ using StarfallArena.Entities;
 using StarfallArena.Facades;
 using StarfallArena.Factories;
 using StarfallArena.Strategies;
+using StarfallArena.UI;
 using StarfallArena.Weapons;
 
 namespace StarfallArena;
@@ -15,6 +16,8 @@ public class GameManager
     private const ConsoleKey AggressiveStrategyKey = ConsoleKey.D3;
     private const ConsoleKey RangedStrategyKey = ConsoleKey.D4;
     private const ConsoleKey FleeStrategyKey = ConsoleKey.D5;
+    private const ConsoleKey DamagePlayerKey = ConsoleKey.D6;
+    private const ConsoleKey HealPlayerKey = ConsoleKey.D7;
     private const ConsoleKey ExecuteStrategyKey = ConsoleKey.Enter;
     private const ConsoleKey ExitKey = ConsoleKey.Escape;
     private const char WallSymbol = '#';
@@ -25,6 +28,7 @@ public class GameManager
     private readonly GameSessionFacade _sessionFacade;
     private readonly Player _player;
     private readonly IWeapon _playerWeapon;
+    private readonly ConsoleHud _consoleHud;
     private Enemy _currentEnemy;
     private bool _isRunning;
     private bool _enemyShouldAct;
@@ -39,6 +43,7 @@ public class GameManager
         _sessionFacade = new GameSessionFacade();
         _enemyFactories = CreateEnemyFactories();
         (_player, _playerWeapon, _currentEnemy, _lastAction) = CreateInitialSession();
+        _consoleHud = new ConsoleHud(_player);
     }
 
     public static GameManager Instance
@@ -72,7 +77,7 @@ public class GameManager
         }
         finally
         {
-            CleanupConsole();
+            CleanupAfterGameLoop();
         }
     }
 
@@ -98,8 +103,9 @@ public class GameManager
         Console.CursorVisible = false;
     }
 
-    private static void CleanupConsole()
+    private void CleanupAfterGameLoop()
     {
+        _consoleHud.Dispose();
         Console.CursorVisible = true;
         Console.ResetColor();
         Console.Clear();
@@ -148,6 +154,20 @@ public class GameManager
         if (key == FleeStrategyKey)
         {
             ChangeEnemyStrategy(new FleeBehaviorStrategy());
+            return;
+        }
+
+        if (key == DamagePlayerKey)
+        {
+            _player.TakeDamage(3);
+            _lastAction = $"{_player.Name} took 3 damage.";
+            return;
+        }
+
+        if (key == HealPlayerKey)
+        {
+            _player.Heal(2);
+            _lastAction = $"{_player.Name} restored 2 health.";
             return;
         }
 
@@ -204,6 +224,7 @@ public class GameManager
         Console.WriteLine($"Frame: {_frameCounter}");
         Console.WriteLine(
             $"Player: {_player.Name}, Class: {_player.CharacterClass}, Health: {_player.Health}, Armor: {_player.Armor}");
+        Console.WriteLine(_consoleHud.LastHealthBar);
         Console.WriteLine($"Starting weapon: {_player.StartingWeapon}");
         Console.WriteLine($"Weapon modifiers: {_playerWeapon.GetDescription()}");
         Console.WriteLine($"Weapon damage: {_playerWeapon.GetDamage()}");
@@ -211,7 +232,7 @@ public class GameManager
         Console.WriteLine($"Enemy behavior: {_currentEnemy.CurrentBehavior}");
         Console.WriteLine(_lastAction);
         Console.WriteLine();
-        Console.WriteLine("Controls: 1 = Orc, 2 = Ghost, 3 = Aggressive, 4 = Ranged, 5 = Flee, Enter = Act, Esc = exit.");
+        Console.WriteLine("Controls: 1 = Orc, 2 = Ghost, 3 = Aggressive, 4 = Ranged, 5 = Flee, 6 = Damage, 7 = Heal, Enter = Act, Esc = exit.");
         Console.WriteLine();
     }
 
