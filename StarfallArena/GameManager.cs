@@ -1,13 +1,8 @@
-using StarfallArena.Enemies;
-using StarfallArena.Factories;
-
 namespace StarfallArena;
 
 public class GameManager
 {
     private static GameManager? _instance;
-    private readonly List<EnemyFactory> _enemyFactories;
-    private Enemy _currentEnemy;
     private bool _isRunning;
     private int _frameCounter;
     private string _lastAction = "Press any key to interact. Press Esc to exit.";
@@ -17,12 +12,6 @@ public class GameManager
         MapWidth = 30;
         MapHeight = 12;
         Difficulty = Difficulty.Normal;
-        _enemyFactories = new List<EnemyFactory>
-        {
-            new OrcFactory(),
-            new GhostFactory()
-        };
-        _currentEnemy = _enemyFactories[0].CreateEnemy();
     }
 
     public static GameManager Instance
@@ -81,20 +70,6 @@ public class GameManager
             return;
         }
 
-        if (key == ConsoleKey.D1)
-        {
-            _currentEnemy = _enemyFactories[0].CreateEnemy();
-            _lastAction = _enemyFactories[0].SpawnEnemy();
-            return;
-        }
-
-        if (key == ConsoleKey.D2)
-        {
-            _currentEnemy = _enemyFactories[1].CreateEnemy();
-            _lastAction = _enemyFactories[1].SpawnEnemy();
-            return;
-        }
-
         _lastAction = $"Last input: {key}";
     }
 
@@ -109,10 +84,9 @@ public class GameManager
         Console.WriteLine($"Game Started with difficulty: {Difficulty}");
         Console.WriteLine($"Map size: {MapWidth} x {MapHeight}");
         Console.WriteLine($"Frame: {_frameCounter}");
-        Console.WriteLine($"Current enemy: {_currentEnemy.Name}, Health: {_currentEnemy.Health}");
         Console.WriteLine(_lastAction);
         Console.WriteLine();
-        Console.WriteLine("Controls: 1 = Orc factory, 2 = Ghost factory, Esc = exit.");
+        Console.WriteLine("Controls: Press Esc to exit.");
         Console.WriteLine();
 
         for (int y = 0; y < MapHeight; y++)
