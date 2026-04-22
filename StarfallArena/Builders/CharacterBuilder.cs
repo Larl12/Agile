@@ -1,48 +1,58 @@
+using StarfallArena.Entities;
+
 namespace StarfallArena.Builders;
 
 public class CharacterBuilder
 {
-    private readonly Player _player = new();
+    private string _name = "Hero";
+    private int _health = 10;
+    private int _x = 1;
+    private int _y = 1;
+    private int _armor;
+    private string _characterClass = "Adventurer";
+    private string _startingWeapon = "Training Sword";
 
     public CharacterBuilder SetName(string name)
     {
-        _player.Name = name;
+        _name = name;
         return this;
     }
 
     public CharacterBuilder SetHealth(int health)
     {
-        _player.Health = health;
+        _health = health;
         return this;
     }
 
     public CharacterBuilder SetArmor(int armor)
     {
-        _player.Armor = armor;
+        _armor = armor;
         return this;
     }
 
     public CharacterBuilder SetClass(string characterClass)
     {
-        _player.CharacterClass = characterClass;
+        _characterClass = characterClass;
         return this;
     }
 
     public CharacterBuilder SetStartingWeapon(string startingWeapon)
     {
-        _player.StartingWeapon = startingWeapon;
+        _startingWeapon = startingWeapon;
+        return this;
+    }
+
+    public CharacterBuilder SetPosition(int x, int y)
+    {
+        _x = x;
+        _y = y;
         return this;
     }
 
     public Player Build()
     {
-        return new Player
-        {
-            Name = _player.Name,
-            Health = _player.Health,
-            Armor = _player.Armor,
-            CharacterClass = _player.CharacterClass,
-            StartingWeapon = _player.StartingWeapon
-        };
+        Player player = new(_name, _health, _x, _y);
+        player.ConfigureLoadout(_armor, _characterClass, _startingWeapon);
+        return player;
     }
 }

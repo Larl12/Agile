@@ -1,5 +1,6 @@
 using StarfallArena.Builders;
 using StarfallArena.Enemies;
+using StarfallArena.Entities;
 using StarfallArena.Factories;
 
 namespace StarfallArena;
@@ -27,6 +28,7 @@ public class GameManager
         _player = new CharacterBuilder()
             .SetName("Arin")
             .SetHealth(18)
+            .SetPosition(2, 2)
             .SetArmor(4)
             .SetClass("Arena Knight")
             .SetStartingWeapon("Steel Sword")
