@@ -1,1 +1,3 @@
-Console.WriteLine("Starfall Arena bootstrap is ready.");
+using StarfallArena;
+
+GameManager.Instance.Run();
