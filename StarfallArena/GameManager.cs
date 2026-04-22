@@ -1,4 +1,3 @@
-using StarfallArena.Builders;
 using StarfallArena.Enemies;
 using StarfallArena.Factories;
 
@@ -8,7 +7,6 @@ public class GameManager
 {
     private static GameManager? _instance;
     private readonly List<EnemyFactory> _enemyFactories;
-    private readonly Player _player;
     private Enemy _currentEnemy;
     private bool _isRunning;
     private int _frameCounter;
@@ -24,13 +22,6 @@ public class GameManager
             new OrcFactory(),
             new GhostFactory()
         };
-        _player = new CharacterBuilder()
-            .SetName("Arin")
-            .SetHealth(18)
-            .SetArmor(4)
-            .SetClass("Arena Knight")
-            .SetStartingWeapon("Steel Sword")
-            .Build();
         _currentEnemy = _enemyFactories[0].CreateEnemy();
     }
 
@@ -118,9 +109,6 @@ public class GameManager
         Console.WriteLine($"Game Started with difficulty: {Difficulty}");
         Console.WriteLine($"Map size: {MapWidth} x {MapHeight}");
         Console.WriteLine($"Frame: {_frameCounter}");
-        Console.WriteLine(
-            $"Player: {_player.Name}, Class: {_player.CharacterClass}, Health: {_player.Health}, Armor: {_player.Armor}");
-        Console.WriteLine($"Starting weapon: {_player.StartingWeapon}");
         Console.WriteLine($"Current enemy: {_currentEnemy.Name}, Health: {_currentEnemy.Health}");
         Console.WriteLine(_lastAction);
         Console.WriteLine();
