@@ -2,6 +2,7 @@ using StarfallArena.Builders;
 using StarfallArena.Enemies;
 using StarfallArena.Entities;
 using StarfallArena.Factories;
+using StarfallArena.Weapons;
 
 namespace StarfallArena;
 
@@ -10,6 +11,7 @@ public class GameManager
     private static GameManager? _instance;
     private readonly List<EnemyFactory> _enemyFactories;
     private readonly Player _player;
+    private readonly IWeapon _playerWeapon;
     private Enemy _currentEnemy;
     private bool _isRunning;
     private int _frameCounter;
@@ -33,6 +35,11 @@ public class GameManager
             .SetClass("Arena Knight")
             .SetStartingWeapon("Steel Sword")
             .Build();
+        _playerWeapon = new CriticalStrikeDecorator(
+            new FireDamageDecorator(
+                new RustDecorator(new Sword(), 2),
+                5),
+            2);
         _currentEnemy = _enemyFactories[0].CreateEnemy();
     }
 
@@ -123,6 +130,8 @@ public class GameManager
         Console.WriteLine(
             $"Player: {_player.Name}, Class: {_player.CharacterClass}, Health: {_player.Health}, Armor: {_player.Armor}");
         Console.WriteLine($"Starting weapon: {_player.StartingWeapon}");
+        Console.WriteLine($"Weapon modifiers: {_playerWeapon.GetDescription()}");
+        Console.WriteLine($"Weapon damage: {_playerWeapon.GetDamage()}");
         Console.WriteLine($"Current enemy: {_currentEnemy.Name}, Health: {_currentEnemy.Health}");
         Console.WriteLine(_lastAction);
         Console.WriteLine();
